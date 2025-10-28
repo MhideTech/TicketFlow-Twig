@@ -1,0 +1,46 @@
+<?php
+
+namespace App;
+
+use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\HttpKernel\Kernel as BaseKernel;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+
+class Kernel extends BaseKernel
+{
+    use MicroKernelTrait;
+
+    public function registerBundles(): iterable
+    {
+        $contents = require $this->getProjectDir().'/config/bundles.php';
+        foreach ($contents as $class => $envs) {
+            if ($envs[$this->environment] ?? false) {
+                yield new $class();
+            }
+        }
+    }
+
+    protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
+    {
+        $container->loadFromExtension('framework', [
+            'secret' => '%env(APP_SECRET)%',
+            'router' => [
+                'utf8' => true,
+            ],
+            // Add other framework configurations as needed, e.g., session, profiler
+        ]);
+
+        // Load other configuration files
+        $loader->load($this->getProjectDir().'/config/services.yaml');
+        $loader->load($this->getProjectDir().'/config/{packages}/*.yaml', 'glob');
+        $loader->load($this->getProjectDir().'/config/{packages}/'.$this->environment.'/*.yaml', 'glob');
+    }
+
+    protected function configureRoutes(RoutingConfigurator $routes): void
+    {
+        $routes->import($this->getProjectDir().'/config/{routes}/'.$this->environment.'/*.yaml', 'glob');
+        $routes->import($this->getProjectDir().'/config/{routes}.yaml');
+    }
+}

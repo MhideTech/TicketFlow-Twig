@@ -1,0 +1,16 @@
+{
+  "name": "ticketflow-twig-frontend",
+  "version": "1.0.0",
+  "description": "Frontend build tools for TicketFlow Twig project",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tailwindcss -i ./src/css/tailwind.css -o ./public/assets/css/tailwind.css --watch",
+    "build": "tailwindcss -i ./src/css/tailwind.css -o ./public/assets/css/tailwind.css --minify"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "tailwindcss": "^3.0.0"
+  }
+}

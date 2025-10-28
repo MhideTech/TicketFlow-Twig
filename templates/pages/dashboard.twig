@@ -1,0 +1,99 @@
+{% extends 'base.twig' %}
+{% import 'components/_lucide_icon.twig' as icon %}
+
+{% block title %}Dashboard - TicketFlow{% endblock %}
+
+{% block content %}
+<main class="min-h-[calc(100vh-8rem)] bg-gray-50 py-8">
+  <div class="max-w-[1440px] mx-auto px-4 sm:px-8">
+
+    {# Header #}
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
+      <p class="text-gray-600">Overview of your ticket management system</p>
+    </div>
+
+    {# Stat Cards #}
+    
+    <div x-data="{
+      stats: { total: 0, open: 0, resolved: 0 },
+      async fetchStats() {
+        const res = await fetch('/api/stats.php');
+        if (res.ok) {
+          this.stats = await res.json();
+        }
+      },
+      init() {
+        this.fetchStats();
+        setInterval(() => this.fetchStats(), 5000); // Refresh every 5 seconds
+      }
+    }" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      {% for stat in stats %}
+        <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 mb-1">{{ stat.title }}</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ stat.value }}</p>
+                </div>
+                <div class="w-12 h-12 rounded-lg flex items-center justify-center {{ stat.bg }}">
+                    {{ icon.render(stat.icon, 24, stat.color) }}
+                </div>
+            </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    {# Quick Actions Section #}
+    <div class="bg-white rounded-xl shadow-md p-8 border border-gray-200">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
+        <div>
+          <h2 class="text-xl font-bold text-gray-900 mb-2">Quick Actions</h2>
+          <p class="text-gray-600">Manage your tickets efficiently</p>
+        </div>
+        <a href="/tickets" class="mt-4 md:mt-0 inline-flex items-center px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors font-medium">
+          View All Tickets
+          {{ icon.render('arrow-right', 16, 'ml-2 text-white') }}
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <a href="/tickets?action=create" class="p-6 border-2 border-gray-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition-all group">
+          <div class="flex items-center space-x-4">
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
+              {{ icon.render('ticket', 24, 'text-green-600') }}
+            </div>
+            <div>
+              <h3 class="font-bold text-gray-900 mb-1">Create New Ticket</h3>
+              <p class="text-sm text-gray-600">Add a new ticket to track</p>
+            </div>
+          </div>
+        </a>
+
+        <a href="/tickets" class="p-6 border-2 border-gray-200 rounded-lg hover:border-amber-500 hover:bg-amber-50 transition-all group">
+          <div class="flex items-center space-x-4">
+            <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center group-hover:bg-amber-200 transition-colors">
+              {{ icon.render('alert-circle', 24, 'text-amber-600') }}
+            </div>
+            <div>
+              <h3 class="font-bold text-gray-900 mb-1">Manage Tickets</h3>
+              <p class="text-sm text-gray-600">View and update existing tickets</p>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    {# Empty State Example (if no tickets) #}
+    {% if stats[0].value == 0 %}
+    <div class="mt-8 bg-blue-50 border border-blue-200 rounded-xl p-8 text-center">
+      {{ icon.render('ticket', 48, 'text-blue-600 mx-auto mb-4') }}
+      <h3 class="text-lg font-bold text-gray-900 mb-2">No tickets yet</h3>
+      <p class="text-gray-600 mb-4">Get started by creating your first ticket</p>
+      <a href="/tickets?action=create" class="inline-flex items-center px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+        Create First Ticket
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}

@@ -1,0 +1,27 @@
+{
+  "name": "your-vendor/ticketflow-twig",
+  "description": "TicketFlow application re-implemented with Twig and Symfony.",
+  "type": "project",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
+    }
+  },
+  "require": {
+    "php": ">=8.1",
+    "symfony/framework-bundle": "^6.0",
+    "symfony/twig-bundle": "^6.0",
+    "symfony/yaml": "^6.0",
+    "twig/twig": "^3.0",
+    "symfony/dotenv": "^6.0"
+  },
+  "require-dev": {
+    "symfony/web-profiler-bundle": "^6.0"
+  },
+  "config": {
+    "allow-plugins": {
+      "symfony/flex": true
+    }
+  }
+}

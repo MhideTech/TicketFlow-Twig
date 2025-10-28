@@ -1,0 +1,163 @@
+{% extends "/base.twig" %}
+
+{% block content %}
+    {% include 'components/navbar.twig' %}
+
+    <main class="max-w-[1440px] mx-auto px-6 py-10">
+        <h1 class="text-3xl font-bold text-foreground mb-6">Ticket Management</h1>
+
+        <!-- CREATE FORM -->
+        <form id="ticketForm" class="space-y-4 mb-10 bg-card p-6 rounded-lg shadow-md border border-border">
+            <div>
+                <label for="title" class="block text-sm font-medium mb-1">Title <span class="text-red-500">*</span></label>
+                <input id="title" name="title" type="text" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+                <p id="titleError" class="text-sm text-red-500 mt-1 hidden"></p>
+            </div>
+
+            <div>
+                <label for="status" class="block text-sm font-medium mb-1">Status <span class="text-red-500">*</span></label>
+                <select id="status" name="status" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+                    <option value="">Select status</option>
+                    <option value="open">Open</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="closed">Closed</option>
+                </select>
+                <p id="statusError" class="text-sm text-red-500 mt-1 hidden"></p>
+            </div>
+
+            <div>
+                <label for="description" class="block text-sm font-medium mb-1">Description</label>
+                <textarea id="description" name="description" rows="3" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"></textarea>
+            </div>
+
+            <button type="submit" class="bg-primary text-white px-5 py-2 rounded-md hover:bg-primary/90 transition">Create Ticket</button>
+        </form>
+
+        <!-- TICKETS LIST -->
+        <section id="ticketList" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></section>
+    </main>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-gray-800 text-white px-5 py-3 rounded-md shadow-md hidden"></div>
+
+    <script>
+        // ======= UTILITIES =======
+        const toast = (message, type = 'info') => {
+            const toastEl = document.getElementById('toast');
+            toastEl.textContent = message;
+            toastEl.className = `fixed bottom-5 right-5 px-5 py-3 rounded-md shadow-md text-white ${
+                type === 'error' ? 'bg-red-600' :
+                type === 'success' ? 'bg-green-600' :
+                'bg-gray-800'
+            }`;
+            toastEl.classList.remove('hidden');
+            setTimeout(() => toastEl.classList.add('hidden'), 3000);
+        };
+
+        // ======= INITIAL LOAD =======
+        const ticketForm = document.getElementById('ticketForm');
+        const ticketList = document.getElementById('ticketList');
+
+        const getTickets = () => JSON.parse(localStorage.getItem('tickets') || '[]');
+        const saveTickets = (tickets) => localStorage.setItem('tickets', JSON.stringify(tickets));
+
+        const renderTickets = () => {
+            const tickets = getTickets();
+            ticketList.innerHTML = tickets.length
+                ? tickets.map((t, index) => `
+                    <div class="bg-card p-5 rounded-lg shadow-md border border-border space-y-2">
+                        <h3 class="font-semibold text-lg">${t.title}</h3>
+                        <p class="text-sm text-muted-foreground">${t.description || 'No description'}</p>
+                        <span class="inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                            t.status === 'open' ? 'bg-green-100 text-green-700' :
+                            t.status === 'in_progress' ? 'bg-amber-100 text-amber-700' :
+                            'bg-gray-100 text-gray-700'
+                        }">${t.status}</span>
+                        <div class="flex gap-3 mt-3">
+                            <button onclick="editTicket(${index})" class="text-blue-600 hover:underline">Edit</button>
+                            <button onclick="deleteTicket(${index})" class="text-red-600 hover:underline">Delete</button>
+                        </div>
+                    </div>
+                `).join('')
+                : '<p class="text-muted-foreground">No tickets created yet.</p>';
+        };
+
+        // ======= CREATE OR UPDATE =======
+        let editIndex = null;
+
+        ticketForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const titleEl = document.getElementById('title');
+            const statusEl = document.getElementById('status');
+            const descEl = document.getElementById('description');
+
+            const title = titleEl.value.trim();
+            const status = statusEl.value.trim();
+            const description = descEl.value.trim();
+
+            let isValid = true;
+
+            // Validation
+            if (!title) {
+                document.getElementById('titleError').textContent = 'Title is required.';
+                document.getElementById('titleError').classList.remove('hidden');
+                isValid = false;
+            } else {
+                document.getElementById('titleError').classList.add('hidden');
+            }
+
+            if (!status) {
+                document.getElementById('statusError').textContent = 'Status is required.';
+                document.getElementById('statusError').classList.remove('hidden');
+                isValid = false;
+            } else {
+                document.getElementById('statusError').classList.add('hidden');
+            }
+
+            if (!isValid) return;
+
+            const tickets = getTickets();
+
+            if (editIndex !== null) {
+                tickets[editIndex] = { title, status, description };
+                saveTickets(tickets);
+                toast('Ticket updated successfully!', 'success');
+                editIndex = null;
+            } else {
+                tickets.push({ title, status, description });
+                saveTickets(tickets);
+                toast('Ticket created successfully!', 'success');
+            }
+
+            ticketForm.reset();
+            renderTickets();
+        });
+
+        // ======= EDIT =======
+        window.editTicket = (index) => {
+            const tickets = getTickets();
+            const t = tickets[index];
+
+            document.getElementById('title').value = t.title;
+            document.getElementById('status').value = t.status;
+            document.getElementById('description').value = t.description || '';
+            editIndex = index;
+
+            toast('Editing ticket...', 'info');
+        };
+
+        // ======= DELETE =======
+        window.deleteTicket = (index) => {
+            if (!confirm('Are you sure you want to delete this ticket?')) return;
+            const tickets = getTickets();
+            tickets.splice(index, 1);
+            saveTickets(tickets);
+            renderTickets();
+            toast('Ticket deleted successfully!', 'success');
+        };
+
+        // ======= INITIAL RENDER =======
+        renderTickets();
+    </script>
+{% endblock %}

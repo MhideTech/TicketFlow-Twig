@@ -1,0 +1,79 @@
+{# templates/components/heroFeatures.twig #}
+{% import 'components/_lucide_icon.twig' as icon %}
+
+  <section class="py-20 lg:py-32 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Section Header -->
+      <div class="text-center mb-16">
+        <h2
+          class="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6"
+        >
+          Powerful Features for Modern Teams
+        </h2>
+        <p class="text-lg text-gray-500 max-w-3xl mx-auto">
+          Everything you need to manage tickets efficiently with
+          professional-grade tools designed for development teams and project
+          managers.
+        </p>
+      </div>
+
+      <!-- Features Grid -->
+      {% set features = [
+        {
+          id: 1,
+          icon: 'ticket',
+          title: "Complete CRUD Operations",
+          description: "Create, read, update, and delete tickets with comprehensive form validation and real-time status updates for seamless workflow management."
+        },
+        {
+          id: 2,
+          icon: 'bell',
+          title: "Real-time Notifications",
+          description: "Stay informed with instant toast notifications for all ticket operations, status changes, and system updates to keep your team synchronized."
+        },
+        {
+          id: 3,
+          icon: 'layers',
+          title: "Cross-Framework Consistency",
+          description: "Identical functionality and user experience across React, Vue, and Twig frameworks with complete feature parity and visual consistency."
+        },
+        {
+          id: 4,
+          icon: 'bar-chart-3',
+          title: "Advanced Analytics",
+          description: "Track ticket statistics with comprehensive dashboard displaying total, open, and resolved counts with priority-based filtering and reporting."
+        },
+        {
+          id: 5,
+          icon: 'shield',
+          title: "Secure Authentication",
+          description: "Session-based authentication with localStorage persistence, protected routes, and automatic session expiration handling for enhanced security."
+        },
+        {
+          id: 6,
+          icon: 'smartphone',
+          title: "Responsive Design",
+          description: "Fully responsive layout adaptation with keyboard navigation support, screen reader compatibility, and mobile-optimized touch interactions."
+        }
+      ] %}
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for feature in features %}
+          <div
+            class="bg-white rounded-lg p-8 border border-border hover:shadow-elevation-3 transition-all duration-300 group"
+            style="box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);"
+          >
+            <div
+              class="w-12 h-12 bg-green-600/10 rounded-lg flex items-center justify-center mb-6 group-hover:bg-green-600/20 transition-colors duration-300"
+            >
+              {{ icon.render(feature.icon, 24, 'text-green-600') }}
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">
+              {{ feature.title }}
+            </h3>
+            <p class="text-gray-500 leading-relaxed">{{ feature.description }}</p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>

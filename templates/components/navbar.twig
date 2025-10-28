@@ -1,0 +1,55 @@
+{# templates/components/navbar.twig #}
+{% import 'components/_lucide_icon.twig' as icon %}
+
+<header class="bg-white shadow-sm border-b border-gray-200">
+  <div class="max-w-[1440px] mx-auto px-4 sm:px-8">
+    <div class="flex items-center justify-between h-16">
+      <a href="/" class="flex items-center space-x-2">
+        <span class="w-10 h-10 flex items-center justify-center bg-green-600 rounded-md">
+          {{ icon.render('ticket', 28, 'w-7 h-7 text-green-100') }}
+        </span>
+        <span class="text-xl font-bold text-gray-900">TicketFlow</span>
+      </a>
+
+      <nav class="flex items-center space-x-6">
+        {% if app.user %}
+          {# current_path is provided by PHP (see index.php changes above) #}
+          {% set cp = current_path|default('/') %}
+
+          <a href="/dashboard"
+             class="text-sm font-medium transition-colors {% if cp == '/dashboard' %}text-green-600{% else %}text-gray-600 hover:text-gray-900{% endif %}">
+            Dashboard
+          </a>
+
+          <a href="/tickets"
+             class="text-sm font-medium transition-colors {% if cp == '/tickets' %}text-green-600{% else %}text-gray-600 hover:text-gray-900{% endif %}">
+            Tickets
+          </a>
+
+          <div class="flex items-center space-x-4 ml-4 pl-4 border-l border-gray-200">
+            <span class="text-sm text-gray-600">
+              {{ app.user.name ?? app.user.email ?? 'User' }}
+            </span>
+
+            <a href="/logout"
+               class="flex items-center space-x-1 text-sm font-medium text-gray-600 hover:text-red-600 transition-colors"
+               aria-label="Logout">
+              {{ icon.render('log-out', 16, 'w-4 h-4') }}
+              <span>Logout</span>
+            </a>
+          </div>
+
+        {% else %}
+          <a href="/login" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+            Login
+          </a>
+
+          <a href="/signup"
+             class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
+            Get Started
+          </a>
+        {% endif %}
+      </nav>
+    </div>
+  </div>
+</header>
